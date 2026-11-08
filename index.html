@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام إدارة وتحليل نتائج الطلاب</title>
+</head>
+<body>
+    <h1>نظام إدارة وتحليل نتائج الطلاب</h1>
+    <p>افتح أدوات المطور في المتصفح (F12)، ثم اختر Console لمشاهدة التقارير.</p>
+
+    <script>
+        // 1. Create Student Class
+        class Student {
+            constructor(id, name, grades, attendance) {
+                this.id = id;
+                this.name = name;
+                this.grades = grades;
+                this.attendance = attendance;
+            }
+
+            // Calculate average using reduce
+            calculateAverage() {
+                const total = this.grades.reduce((sum, grade) => sum + grade, 0);
+                return this.grades.length > 0 ? total / this.grades.length : 0;
+            }
+
+            // Return letter grade
+            getGrade(average) {
+                if (average >= 90) {
+                    return "A";
+                } else if (average >= 80) {
+                    return "B";
+                } else if (average >= 70) {
+                    return "C";
+                } else if (average >= 60) {
+                    return "D";
+                } else if (average >= 50) {
+                    return "E";
+                } else {
+                    return "F";
+                }
+            }
+
+            // Check final result
+            getResult() {
+                const average = this.calculateAverage();
+
+                if (average >= 50 && this.attendance >= 75) {
+                    return "ناجح";
+                } else {
+                    return "يحتاج مراجعة";
+                }
+            }
+        }
+
+        // 2. Create the main students array
+        const studentsList = [
+            new Student(1, "Ahmed", [90, 85, 95], 90),
+            new Student(2, "Mohamed", [45, 40, 48], 80),
+            new Student(3, "Ali", [70, 75, 80], 85),
+            new Student(4, "Omar", [42, 45, 48], 90)
+        ];
+
+        // 3. Get students whose averages are between 40 and 49
+        const weakStudents = studentsList.filter(student => {
+            const average = student.calculateAverage();
+            return average >= 40 && average <= 49;
+        });
+
+        // 4. Add 5 grace marks to each weak student's average
+        const graceStudents = weakStudents.map(student => ({
+            id: student.id,
+            name: student.name,
+            oldAverage: student.calculateAverage(),
+            newAverage: student.calculateAverage() + 5
+        }));
+
+        // 5. Calculate the sum of the new averages
+        const totalNewAverages = graceStudents.reduce((sum, student) => {
+            return sum + student.newAverage;
+        }, 0);
+
+        // 6. Calculate the average safely (avoid division by zero)
+        const graceAverage = graceStudents.length > 0
+            ? totalNewAverages / graceStudents.length
+            : 0;
+
+        // 7. Print a report for every student
+        console.log("===== Students Reports =====");
+
+        studentsList.forEach(student => {
+            const average = student.calculateAverage();
+
+            console.log({
+                Name: student.name,
+                Average: Number(average.toFixed(2)),
+                Grade: student.getGrade(average),
+                Result: student.getResult()
+            });
+        });
+
+        // 8. Print students included in the grace committee
+        console.log("===== Grace Students =====");
+        console.table(graceStudents);
+
+        // 9. Print the average after adding grace marks
+        console.log("===== Grace Average =====");
+        console.log(Number(graceAverage.toFixed(2)));
+    </script>
+</body>
+</html>
